@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { CarFront } from 'lucide-react';
 import { CurrencyCode } from '../data/porscheSales';
+import bannerLineupImg from '../assets/images/porsche_banner_lineup_1794859236864.jpg';
+import banner911Img from '../assets/images/porsche_911_studio_1794859237352.jpg';
+import bannerTaycanCayenneImg from '../assets/images/porsche_taycan_cayenne_1794859237415.jpg';
 
 export interface BannerSlide {
   id: string;
@@ -15,21 +18,21 @@ const BANNER_SLIDES: BannerSlide[] = [
     id: 'lineup',
     label: 'Showroom Stuttgart',
     caption: '911 Carrera · Cayenne · Taycan',
-    src: '/src/assets/images/porsche_banner_lineup_1794859236864.jpg',
+    src: bannerLineupImg,
     alt: 'Linha Porsche 911 Carrera, Cayenne e Taycan em showroom arquitetônico em Stuttgart',
   },
   {
     id: 'gt3',
     label: '911 GT3 Studio',
     caption: 'Engenharia de Performance · Zuffenhausen',
-    src: '/src/assets/images/porsche_911_studio_1794859237352.jpg',
+    src: banner911Img,
     alt: 'Porsche 911 GT3 metálico em estúdio escuro com pinças de freio vermelhas',
   },
   {
     id: 'taycan-cayenne',
     label: 'Taycan & Cayenne',
     caption: 'Mobilidade Elétrica & SUVs · Leipzig & Bratislava',
-    src: '/src/assets/images/porsche_taycan_cayenne_1794859237415.jpg',
+    src: bannerTaycanCayenneImg,
     alt: 'Porsche Taycan Cross Turismo e Porsche Cayenne estacionados ao entardecer junto a pavilhão envidraçado',
   },
 ];
