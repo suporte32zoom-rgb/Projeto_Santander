@@ -15,28 +15,19 @@ Dashboard interativa construída em React + TypeScript + Tailwind CSS para respo
 - Tabela completa da base sanitizada com ordenação, busca e exportação em `.csv`.
 - Visão corporativa Porsche AG (DRE IFRS 2024–2025, entregas 9M 2026, presença global e estrutura P911).
 
-## Como Publicar no GitHub Pages
+## Publicação no GitHub Pages (Deploy from a branch)
 
-O projeto já inclui caminhos relativos (`base: './'` no Vite), workflow de publicação automática e pasta pronta `docs/`:
+O repositório já mantém o arquivo `index.html` compilado e a pasta `assets/` com caminhos relativos (`base: './'`) diretamente na raiz (`/`), prontos para servir sem GitHub Actions:
 
-- **Opção A — Via Branch (`main` / `docs`):**
-  1. No repositório do GitHub, acesse **Settings → Pages**.
-  2. Em **Build and deployment → Source**, selecione **Deploy from a branch**.
-  3. Escolha a branch `main` e a pasta **`/docs`**, depois clique em **Save**.
-- **Opção B — Via GitHub Actions:**
-  1. Em **Settings → Pages → Source**, selecione **GitHub Actions**.
-  2. A cada `git push` na branch `main`, o workflow `.github/workflows/deploy.yml` executa `npm run build` e publica a pasta `dist/`.
+1. No repositório do GitHub, acesse **Settings → Pages**.
+2. Em **Build and deployment → Source**, selecione **Deploy from a branch**.
+3. Escolha a branch **`main`** e a pasta **`/ (root)`**, depois clique em **Save**.
 
-## Execução Local
+## Desenvolvimento e Atualização do Build
 
 ```bash
 npm install
-npm run dev
-```
-
-Para gerar o build de produção e atualizar a pasta `docs/` do GitHub Pages:
-
-```bash
 npm run build
-npx vite build --outDir docs
 ```
+
+Ao executar `npm run build`, o Vite compila a aplicação a partir de `app.html` e atualiza automaticamente `index.html`, `assets/` e `.nojekyll` na raiz do repositório.

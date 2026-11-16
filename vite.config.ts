@@ -6,7 +6,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/Projeto_Santander/',
+    base: './',
     plugins: [
       react(),
       tailwindcss(),
@@ -28,7 +28,57 @@ export default defineConfig(() => {
           }
         },
       },
+      // Emits compiled index.html, assets/, and .nojekyll directly to repository root
+      // for GitHub Pages "Deploy from a branch" (main / root) without GitHub Actions.
+      {
+        name: 'publish-root-pages',
+        apply: 'build',
+        closeBundle(error?: Error): void {
+          if (error) {
+            return;
+          }
+          const distDir = path.resolve(__dirname, 'dist');
+          const builtAppHtml = path.resolve(distDir, 'app.html');
+          const distIndexHtml = path.resolve(distDir, 'index.html');
+          if (fs.existsSync(builtAppHtml)) {
+            fs.renameSync(builtAppHtml, distIndexHtml);
+          }
+
+          if (fs.existsSync(distIndexHtml)) {
+            let html = fs.readFileSync(distIndexHtml, 'utf-8');
+            const cssLinkRegex = /<link\s+rel="stylesheet"[^>]*href="\.\/(assets\/[^"]+\.css)"[^>]*>/g;
+            html = html.replace(cssLinkRegex, (_match, relCssPath: string) => {
+              const fullCssPath = path.resolve(distDir, relCssPath);
+              if (fs.existsSync(fullCssPath)) {
+                const css = fs.readFileSync(fullCssPath, 'utf-8');
+                return `<style>${css}</style>`;
+              }
+              return _match;
+            });
+            fs.writeFileSync(distIndexHtml, html, 'utf-8');
+            fs.copyFileSync(distIndexHtml, path.resolve(__dirname, 'index.html'));
+          }
+
+          const distAssets = path.resolve(distDir, 'assets');
+          const rootAssets = path.resolve(__dirname, 'assets');
+          if (fs.existsSync(distAssets)) {
+            fs.rmSync(rootAssets, {recursive: true, force: true});
+            fs.cpSync(distAssets, rootAssets, {recursive: true, force: true});
+          }
+
+          const distNoJekyll = path.resolve(distDir, '.nojekyll');
+          const rootNoJekyll = path.resolve(__dirname, '.nojekyll');
+          if (fs.existsSync(distNoJekyll)) {
+            fs.copyFileSync(distNoJekyll, rootNoJekyll);
+          }
+        },
+      },
     ],
+    build: {
+      rollupOptions: {
+        input: path.resolve(__dirname, 'app.html'),
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
