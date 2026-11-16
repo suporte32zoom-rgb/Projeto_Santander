@@ -17,7 +17,7 @@ Dashboard interativa construída em React + TypeScript + Tailwind CSS para respo
 
 ## Publicação no GitHub Pages (Deploy from a branch)
 
-O repositório já mantém o arquivo `index.html` compilado e a pasta `assets/` com caminhos relativos (`base: './'`) diretamente na raiz (`/`), prontos para servir sem GitHub Actions:
+O repositório já mantém o arquivo `index.html` compilado de forma autossuficiente (via `vite-plugin-singlefile` com `base: './'`, todo o JavaScript, CSS e imagens embutidos inline sem dependência de subpasta `assets/`) e o arquivo `.nojekyll` diretamente na raiz (`/`), prontos para servir sem GitHub Actions:
 
 1. No repositório do GitHub, acesse **Settings → Pages**.
 2. Em **Build and deployment → Source**, selecione **Deploy from a branch**.
@@ -30,4 +30,4 @@ npm install
 npm run build
 ```
 
-Ao executar `npm run build`, o Vite compila a aplicação a partir de `app.html` e atualiza automaticamente `index.html`, `assets/` e `.nojekyll` na raiz do repositório.
+Ao executar `npm run build`, o Vite compila a aplicação a partir de `app.html` em um único arquivo autossuficiente e atualiza automaticamente `index.html` e `.nojekyll` na raiz do repositório.

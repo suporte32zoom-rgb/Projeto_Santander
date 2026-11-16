@@ -3,13 +3,30 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
+import {viteSingleFile} from 'vite-plugin-singlefile';
 
 export default defineConfig(() => {
   return {
     base: './',
     plugins: [
+      {
+        name: 'serve-app-html-in-dev',
+        apply: 'serve',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            const urlPath = req.url?.split('?')[0];
+            if (urlPath === '/' || urlPath === '/index.html') {
+              req.url = '/app.html';
+            }
+            next();
+          });
+        },
+      },
       react(),
       tailwindcss(),
+      viteSingleFile({
+        outputFileName: 'index.html',
+      }),
       // Copies src/assets into dist/ so root-relative URLs like
       // "/src/assets/images/..." (e.g. generate_image output) still resolve
       // in production builds. Do not remove.
@@ -28,8 +45,8 @@ export default defineConfig(() => {
           }
         },
       },
-      // Emits compiled index.html, assets/, and .nojekyll directly to repository root
-      // for GitHub Pages "Deploy from a branch" (main / root) without GitHub Actions.
+      // Emits compiled single-file index.html and .nojekyll directly to repository root
+      // for GitHub Pages "Deploy from a branch" (main / root) without external assets/.
       {
         name: 'publish-root-pages',
         apply: 'build',
@@ -38,42 +55,17 @@ export default defineConfig(() => {
             return;
           }
           const distDir = path.resolve(__dirname, 'dist');
-          const builtAppHtml = path.resolve(distDir, 'app.html');
           const distIndexHtml = path.resolve(distDir, 'index.html');
-          if (fs.existsSync(builtAppHtml)) {
-            fs.renameSync(builtAppHtml, distIndexHtml);
-          }
-
           if (fs.existsSync(distIndexHtml)) {
-            let html = fs.readFileSync(distIndexHtml, 'utf-8');
-            const cssLinkRegex = /<link\s+rel="stylesheet"[^>]*href="\.\/(assets\/[^"]+\.css)"[^>]*>/g;
-            html = html.replace(cssLinkRegex, (_match, relCssPath: string) => {
-              const fullCssPath = path.resolve(distDir, relCssPath);
-              if (fs.existsSync(fullCssPath)) {
-                const css = fs.readFileSync(fullCssPath, 'utf-8');
-                return `<style>${css}</style>`;
-              }
-              return _match;
-            });
-            fs.writeFileSync(distIndexHtml, html, 'utf-8');
             fs.copyFileSync(distIndexHtml, path.resolve(__dirname, 'index.html'));
-          }
-
-          const distAssets = path.resolve(distDir, 'assets');
-          const rootAssets = path.resolve(__dirname, 'assets');
-          if (fs.existsSync(distAssets)) {
-            fs.mkdirSync(rootAssets, {recursive: true});
-            for (const entry of fs.readdirSync(rootAssets)) {
-              if (entry === 'aistudio') continue;
-              fs.rmSync(path.join(rootAssets, entry), {recursive: true, force: true});
-            }
-            fs.cpSync(distAssets, rootAssets, {recursive: true, force: true});
           }
 
           const distNoJekyll = path.resolve(distDir, '.nojekyll');
           const rootNoJekyll = path.resolve(__dirname, '.nojekyll');
           if (fs.existsSync(distNoJekyll)) {
             fs.copyFileSync(distNoJekyll, rootNoJekyll);
+          } else if (!fs.existsSync(rootNoJekyll)) {
+            fs.writeFileSync(rootNoJekyll, '', 'utf-8');
           }
         },
       },
