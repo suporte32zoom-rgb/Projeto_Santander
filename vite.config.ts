@@ -62,7 +62,11 @@ export default defineConfig(() => {
           const distAssets = path.resolve(distDir, 'assets');
           const rootAssets = path.resolve(__dirname, 'assets');
           if (fs.existsSync(distAssets)) {
-            fs.rmSync(rootAssets, {recursive: true, force: true});
+            fs.mkdirSync(rootAssets, {recursive: true});
+            for (const entry of fs.readdirSync(rootAssets)) {
+              if (entry === 'aistudio') continue;
+              fs.rmSync(path.join(rootAssets, entry), {recursive: true, force: true});
+            }
             fs.cpSync(distAssets, rootAssets, {recursive: true, force: true});
           }
 
@@ -75,6 +79,7 @@ export default defineConfig(() => {
       },
     ],
     build: {
+      cssMinify: 'esbuild' as const,
       rollupOptions: {
         input: path.resolve(__dirname, 'app.html'),
       },
