@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowDownUp, FilterX, Search } from 'lucide-react';
 import { CurrencyCode, formatMoney, SaleRecord } from '../data/porscheSales';
+import { MonthlyPerformanceKpi } from './MonthlyPerformanceKpi';
 
 interface SalesAnalyticsViewProps {
   records: SaleRecord[];
@@ -193,6 +194,9 @@ export const SalesAnalyticsView: React.FC<SalesAnalyticsViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Monthly Performance KPI */}
+      <MonthlyPerformanceKpi filteredRecords={filtered} currency={currency} />
+
       {/* Filter Toolbar */}
       <section
         aria-label="Filtros da dashboard"

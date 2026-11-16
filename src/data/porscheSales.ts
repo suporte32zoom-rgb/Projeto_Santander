@@ -6,6 +6,7 @@ export interface SaleRecord {
   cidade: string;
   estado: string;
   ano: number;
+  mes: number;
   preco: number; // Always sanitized numeric BRL
   metodoPagamento: string;
 }
@@ -98,6 +99,10 @@ function createInitialDataset(): SaleRecord[] {
     const model = expandedModels[modelIdx];
     const loc = LOCATION_POOL[locIdx];
     const ano = YEAR_POOL[yearIdx];
+    const mes =
+      ano === 2026
+        ? ((Math.floor(i / 10) * 2 + 2) % 11) + 1
+        : ((i * 7 + Math.floor(i / 10)) % 12) + 1;
 
     // Price varies by model + year inflation + trim tier
     const yearFactor = 1 + (ano - 2022) * 0.035;
@@ -124,6 +129,7 @@ function createInitialDataset(): SaleRecord[] {
       cidade: loc.cidade,
       estado: loc.estado,
       ano,
+      mes,
       preco,
       metodoPagamento,
     });
@@ -225,12 +231,18 @@ export function parseSalesImport(inputText: string): ImportDiagnostics {
               reason: 'Campo inválido, ausente ou marcado como INVALID',
             });
           } else {
+            const rawMes = Number(item.mes ?? item.month);
+            const mes =
+              Number.isFinite(rawMes) && rawMes >= 1 && rawMes <= 12
+                ? Math.trunc(rawMes)
+                : ((records.length * 7) % 12) + 1;
             records.push({
               id: `IMP-${String(records.length + 1).padStart(3, '0')}`,
               modelo,
               cidade,
               estado,
               ano: Math.trunc(ano),
+              mes,
               preco,
               metodoPagamento,
             });
@@ -293,6 +305,7 @@ export function parseSalesImport(inputText: string): ImportDiagnostics {
   const idxCity = findCol(['cidade', 'city', 'municipio']);
   const idxState = findCol(['estado', 'uf', 'state']);
   const idxYear = findCol(['ano', 'year']);
+  const idxMonth = findCol(['mes', 'month']);
   const idxPrice = findCol(['preco', 'price', 'valor', 'receita']);
   const idxPay = findCol(['metodo', 'pagamento', 'payment']);
 
@@ -340,12 +353,19 @@ export function parseSalesImport(inputText: string): ImportDiagnostics {
       continue;
     }
 
+    const rawMes = idxMonth !== -1 ? Number((cols[idxMonth] ?? '').replace(/[^0-9]/g, '')) : NaN;
+    const mes =
+      Number.isFinite(rawMes) && rawMes >= 1 && rawMes <= 12
+        ? rawMes
+        : ((records.length * 7) % 12) + 1;
+
     records.push({
       id: `IMP-${String(records.length + 1).padStart(3, '0')}`,
       modelo,
       cidade,
       estado,
       ano: anoNum,
+      mes,
       preco: precoNum,
       metodoPagamento,
     });
